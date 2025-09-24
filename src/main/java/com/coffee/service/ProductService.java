@@ -15,4 +15,14 @@ public class ProductService {
     public List<Product> getProductList() {
         return this.productRepository.findProductByOrderByIdDesc();
     }
+
+    public boolean deleteProduct(Long id) {
+        // existsById() 메소드와 deleteById()메소드는 CRUDRepository에 포함
+        if (productRepository.existsById(id)) { // 해당 항목이 존재하면
+            productRepository.deleteById(id);
+            return true; // 삭제 성공
+        } else { // 존재하지 않음
+            return false; // 실패
+        }
+    }
 }
