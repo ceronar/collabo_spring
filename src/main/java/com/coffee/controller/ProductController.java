@@ -153,4 +153,88 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", err.getMessage(), "error", "Error file uploading"));
         }
     }
+
+    @GetMapping("/detail/{id}") // FrontEnd가 상품에 대한 상세 정보를 요청
+    public ResponseEntity<Product> detail(@PathVariable Long id) {
+        Product product = productService.getProductById(id);
+
+        if (product == null) { // 404 응답
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } else { // 200 ok 응답
+            return ResponseEntity.ok(product);
+        }
+    }
+
+    /*
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> putUpdate(@PathVariable Long id, @RequestBody Product updatedProduct){
+//        System.out.println("수정할 상품 id : " + id);
+//
+//        System.out.println("관리자가 수정한 상품의 정보");
+//        System.out.println(updatedProduct);
+
+        Optional<Product> findProduct = productService.findById(id);
+
+        if(findProduct.isEmpty()){ // 상품이 존재하지 않으면 404 응답 반환
+            return ResponseEntity.notFound().build();
+
+        }else{ // 상품이 있습니다.
+            // Optional에서 실제 상품 정보 끄집어 내기
+            Product savedProduct = findProduct.get() ;
+
+            try{
+                // 이전 이미지 객체에 새로운 이미지 객체 정보를 업데이트합니다.
+                savedProduct.setName(updatedProduct.getName());
+                savedProduct.setPrice(updatedProduct.getPrice());
+                savedProduct.setCategory(updatedProduct.getCategory());
+                savedProduct.setStock(updatedProduct.getStock());
+                savedProduct.setDescription(updatedProduct.getDescription());
+                // savedProduct.setInputdate(LocalDate.now());
+
+                // 이미지가 의미 있는 문자열로 되어 있고, Base64 인코딩 형식이면 이미지 이름을 변경합니다.
+                if(updatedProduct.getImage() != null && updatedProduct.getImage().startsWith("data:image") ){
+                    String imageFileName = saveProductImage(updatedProduct.getImage());
+                    savedProduct.setImage(imageFileName);
+                }
+
+                // 서비스를 통하여 데이터 베이스에 저장합니다.
+                this.productService.save(savedProduct);
+
+                return ResponseEntity.ok(Map.of("message", "상품 수정 성공")) ;
+
+            } catch (Exception err) { // 오류 발생시 500 응답 코드 반환
+                return ResponseEntity
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Map.of("message", err.getMessage(), "error", "Error product update failed")) ;
+            }
+        }
+    }
+
+    // Base64 인코딩 문자열을 변환하여 이미지로 만들고, 저장해주는 메소드입니다.
+    private String saveProductImage(String base64Image) {
+        String imageFileName = "product_" + System.currentTimeMillis() + ".jpg" ;
+
+        // 폴더 구분자가 제대로 설정 되어 있으면 그대로 사용합니다.
+        // 그렇지 않으면, 폴더 구분자를 붙여 줍니다.
+        // File.separator : 폴더 구분자를 의미하며, 리눅스는 /, 윈도우는 \입니다.
+        String pathName = productImageLocation.endsWith("\\") || productImageLocation.endsWith("/")
+                ? productImageLocation
+                : productImageLocation + File.separator;
+
+        File imageFile = new File(pathName + imageFileName) ;
+
+        // base64Image : JavaScript FileReader API에 만들어진 이미지입니다.
+        byte[] decodedImage = Base64.getDecoder().decode(base64Image.split(",")[1]);
+
+        try{ // FileOutputStream는 바이트 파일을 처리해주는 자바의 Stream 클래스
+            FileOutputStream fos = new FileOutputStream(imageFile) ;
+            fos.write(decodedImage);
+            return imageFileName ;
+
+        }catch (Exception err){
+            err.printStackTrace();
+            return base64Image ;
+        }
+    }
+    */
 }
