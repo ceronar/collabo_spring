@@ -7,22 +7,27 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
-@Service // 서비스 역할. 주로 로직 처리에 활용되는 자바 클래스
+@Service // 서비스 역할을 하며, 주로 로직 처리에 활용되는 자바 클래스입니다.
 @RequiredArgsConstructor
 public class MemberService {
-    private final MemberRepository memRepo;
+    private final MemberRepository memberRepository ;
 
     public Member findByEmail(String email) {
-        return memRepo.findByEmail(email);
+        return memberRepository.findByEmail(email);
     }
 
     public void insert(Member bean) {
-        // 사용자 '역할'과 '등록 일자'는 여기서 넣음
+        // 사용자 '역할'과 '등록 일자'는 요기서 넣어 줍시다.
         bean.setRole(Role.USER);
         bean.setRegdate(LocalDate.now());
 
-        // 주의) Repository에서 insert 작업은 save() 메소드 사용
-        memRepo.save(bean);
+        // 주의) Repository에서 인서트 작업은 save() 메소드를 사용합니다.
+        memberRepository.save(bean);
+    }
+
+    public Optional<Member> findMemberById(Long memberId) {
+        return this.memberRepository.findById(memberId);
     }
 }
