@@ -19,4 +19,9 @@ public class CartProductService {
     public Optional<CartProduct> findCartProductById(Long cartProductId) {
         return cartProductRepository.findById(cartProductId);
     }
+
+
+    public void delete(Long cartProductId) {
+        cartProductRepository.deleteById(cartProductId);
+    }
 }
