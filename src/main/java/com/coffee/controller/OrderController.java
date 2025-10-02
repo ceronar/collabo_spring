@@ -1,5 +1,6 @@
 package com.coffee.controller;
 
+import com.coffee.constant.OrderStatus;
 import com.coffee.constant.Role;
 import com.coffee.dto.OrderDto;
 import com.coffee.dto.OrderItemDto;
@@ -102,10 +103,10 @@ public class OrderController {
 
         if(role == Role.ADMIN) { // 관리자면 모든 주문내역 조회
             // System.out.println("관리자");
-            orders = orderService.findAllOrders();
+            orders = orderService.findAllOrders(OrderStatus.PENDING);
         } else { // 일반 사용자면 자기 주문 정보만 조회
             // System.out.println("사용자");
-            orders = orderService.findByMemberId(memberId);
+            orders = orderService.findByMemberId(memberId, OrderStatus.PENDING);
         }
 
         System.out.println("주문 건수 : " + orders.size());
@@ -132,5 +133,57 @@ public class OrderController {
         }
 
         return ResponseEntity.ok(responseDtos);
+    }
+
+    @GetMapping("/update/{orderId}")
+    public String ddd(@PathVariable Long orderId){
+        System.out.println("수정할 항목 : " + orderId);
+        return null ;
+    }
+
+    // /order/update/status/${bean.orderId}?status=${newStatus}
+
+    @PutMapping("/update/status/{orderId}")
+    public ResponseEntity<String> statusChange(@PathVariable Long orderId, @RequestParam OrderStatus status) {
+        System.out.println("수정할 항목의 id : " + orderId);
+        System.out.println("변경하고자 하는 주문 상태 :  : " + status);
+
+        int effected = -1;
+        effected = orderService.updateOrderStatus(orderId, status);
+        System.out.println("DB에 반영이 된 행 개수 : " + effected);
+
+        String message = "주문 번호 " + orderId + "의 주문 상태가 변경 되었습니다.";
+        return ResponseEntity.ok(message);
+    }
+
+    // '관리자' 또는 '사용자 본인'이 주문에 대한 삭제 요청을 함
+    @DeleteMapping("/delete/{orderId}")
+    public ResponseEntity<String> cancelOrder(@PathVariable Long orderId) {
+        if(!orderService.existsById(orderId)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Optional<Order> orderOptional = orderService.findOrderById(orderId);
+        if (orderOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Order order = orderOptional.get();
+
+        // '주문 상품'을 반복하면서 재고 수량을 더해줌
+        for (OrderProduct op : order.getOrderProducts()) {
+            Product product = op.getProduct();
+            int quantity = op.getQuantity();
+
+            // 기존 재고에 주문 취소된 수량을 추가
+            product.setStock(product.getStock() + quantity);
+
+            productService.save(product); // 데이터베이스 수정
+        }
+
+        orderService.deleteById(orderId);
+
+        String message = "주문이 취소 되었습니다.";
+        return ResponseEntity.ok(message);
     }
 }

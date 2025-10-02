@@ -165,6 +165,11 @@ public class ProductController {
         }
     }
 
+    @GetMapping("") // 홈페이지에 보여줄 큰 이미지들에 대한 정보를 읽어옴
+    public List<Product> getBigsizeProducts(@RequestParam(required = false) String filter) {
+        return productService.getProductsByFilter(filter);
+    }
+
     /*
     @PutMapping("/update/{id}")
     public ResponseEntity<?> putUpdate(@PathVariable Long id, @RequestBody Product updatedProduct){
