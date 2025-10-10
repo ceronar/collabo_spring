@@ -4,6 +4,10 @@ import com.coffee.entity.Product;
 import com.coffee.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,11 +32,28 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping("/list") // 상품 목록 List Collection 반환
-    public List<Product> list() {
-        List<Product> products = this.productService.getProductList();
+//    @GetMapping("/list") // 상품 목록 List Collection 반환
+//    public List<Product> list() {
+//        List<Product> products = this.productService.getProductList();
+//
+//        return products;
+//    }
 
-        return products;
+    @GetMapping("/list") // paging 관련 파라미터를 사용하여 상품 목록을 조회
+    public ResponseEntity<Page<Product>> listProducts(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "6") int pageSize
+    ) {
+        System.out.println("pageNumber : " + pageNumber + ", pageSize : " + pageSize);
+
+        // 현재 페이지는 pageNumber이고, 페이지당 보여줄 개수 pageSize를 사용하여 Pageable 페이지를 구함
+        // 상품 번호 역순 정렬
+        Sort mysort = Sort.by(Sort.Direction.DESC, "id");
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, mysort);
+
+        Page<Product> productPage = productService.listProduct(pageable);
+
+        return ResponseEntity.ok(productPage);
     }
 
     // 클라이언트가 특정 상품 id에 대하여 "삭제" 요청
