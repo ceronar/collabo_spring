@@ -56,6 +56,7 @@ public class MemberController {
         }
     }
 
+    /*
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody Member bean) {
         // bean : 클라이언트가 기입한 로그인 정보를 담고있는 객체
@@ -86,4 +87,5 @@ public class MemberController {
             return ResponseEntity.status(401).body(response);
         }
     }
+    */
 }

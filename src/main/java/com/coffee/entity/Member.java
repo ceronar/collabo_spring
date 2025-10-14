@@ -1,6 +1,7 @@
 package com.coffee.entity;
 
 import com.coffee.constant.Role;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -47,5 +48,9 @@ public class Member {
     @Enumerated(EnumType.STRING) // 컬럼에 문자열 형식으로 데이터가 들어감
     private Role role; // 사용자 또는 관리자
 
+    // 자바의 객체를 json 타입으로 변경할 때, LocalDate, LocalDateTime 클래스들이 변환이 원활하지 않음
+    // Jackson 라이브러리를 사용하여 이를 해결
+    // pom.xml 파일에 Jackson 라이브러리 추가
+    @JsonFormat(pattern = "yyyy-MM-dd") // 변환시 날짜 형식을 개발자가 지정
     private LocalDate regdate; // 등록 일자
 }
